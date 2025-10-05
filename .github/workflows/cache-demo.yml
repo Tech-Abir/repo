@@ -1,7 +1,7 @@
 name: Python Cache Demo
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Allows manual trigger
   push:
     branches:
       - main
@@ -11,22 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      - name: Cache pip dependencies
+      # Step 3: Cache pip dependencies
+      - name: Cache dependencies
         id: cache-step
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: cache-62b476e
 
-      - name: Prime cache step
+      # Step 4: Prime cache step (prints hit/miss)
+      - name: prime-cache-62b476e
         run: |
           if [ "${{ steps.cache-step.outputs.cache-hit }}" == 'true' ]; then
             echo "Cache hit ✅"
@@ -34,5 +38,11 @@ jobs:
             echo "Cache miss ❌"
           fi
 
+      # Step 5: Install dependencies
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found, skipping pip install."
+          fi
